@@ -19,5 +19,6 @@ struct Variables {
     static let blockCategory: UInt32 = 0x1 << 3     //00001000
     
     static var blockNum = 0
+    static var isPlayed = false
     
 }

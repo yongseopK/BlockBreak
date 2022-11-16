@@ -7,13 +7,15 @@
 
 import SpriteKit
 import GameplayKit
+import CoreMotion
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
-
+    let motion = CMMotionManager()
     
     override func didMove(to view: SKView) {
         Variables.scene = self
+        self.physicsWorld.contactDelegate = self
         setting()
     }
     

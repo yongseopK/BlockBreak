@@ -13,11 +13,13 @@ class Stages {
     let view = Variables.scene.view!
     
     init() {
+        Variables.scene.physicsWorld.speed = 0.5
         bg()
         paddleImage()
         ballImage()
         border()
         blocks()
+        bottomImage()
     }
     
     func bg() {
@@ -56,13 +58,25 @@ class Stages {
         Variables.ball.name = "ball"
         Variables.scene.addChild(Variables.ball)
         Variables.ball.physicsBody = SKPhysicsBody(circleOfRadius: 10)
-        Variables.ball.physicsBody?.isDynamic = true
+        Variables.ball.physicsBody?.isDynamic = false
         Variables.ball.physicsBody?.affectedByGravity = false
         Variables.ball.physicsBody?.friction = 0
         Variables.ball.physicsBody?.restitution = 1
         Variables.ball.physicsBody?.categoryBitMask = Variables.ballCategory
-        Variables.ball.physicsBody?.applyImpulse(CGVector(dx: 10, dy: 10))
         Variables.ball.physicsBody?.linearDamping = 0
+    }
+    
+    func bottomImage() {
+        let bottom = SKSpriteNode()
+        bottom.size = CGSize(width: view.frame.width, height: 10)
+        bottom.position = CGPoint(x: 0, y: -view.frame.height / 2)
+        Variables.scene.addChild(bottom)
+        bottom.physicsBody = SKPhysicsBody(rectangleOf: bottom.size)
+        bottom.physicsBody?.isDynamic = false
+        bottom.physicsBody?.affectedByGravity = false
+        bottom.physicsBody?.allowsRotation = false
+        bottom.physicsBody?.categoryBitMask = Variables.bottomCategory
+        bottom.physicsBody?.contactTestBitMask = Variables.ballCategory
     }
     
     func border() {
@@ -88,7 +102,7 @@ class Stages {
                 let xValue = (block_w - gab / 2) * i
                 let yValue = (block_h - gab) * j
                 block.position = CGPoint(x: startX + xValue, y: startY - yValue)
-                let num = Int.random(in: 1...10)
+                let num = Int.random(in: 1...8)
                 block.texture = SKTexture(imageNamed: "block\(num)")
                 block.zPosition = 1
                 block.name = "block\(num)"
