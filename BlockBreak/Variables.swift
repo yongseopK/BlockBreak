@@ -20,5 +20,5 @@ struct Variables {
     
     static var blockNum = 0
     static var isPlayed = false
-    
+    static var stageNum = 1
 }

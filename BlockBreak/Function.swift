@@ -7,21 +7,29 @@
 
 import Foundation
 import SpriteKit
+import AVKit
 
 extension GameScene {
     
     func setting() {
         let stage = Stages()
 //        tiliting()
+        bgm()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let location = touch.location(in: self)
+            let node: SKNode = self.atPoint(location)
             if Variables.isPlayed {
                 Variables.paddle.run(SKAction.moveTo(x: location.x, duration: 0.2))
             } else {
+                Variables.paddle.run(SKAction.moveTo(x: location.x, duration: 0.2))
                 Variables.ball.run(SKAction.moveTo(x: location.x, duration: 0.2))
+            }
+            
+            if node.name == "restart" {
+                restart()
             }
         }
     }
@@ -64,7 +72,8 @@ extension GameScene {
         }
         
         if firstBody.categoryBitMask == Variables.ballCategory && secondBody.categoryBitMask == Variables.bottomCategory {
-            print("Game Over")
+            gameOver()
+            firstBody.node?.run(SKAction.playSoundFileNamed("gameOver.wav", waitForCompletion: false))
         }
         if firstBody.categoryBitMask == Variables.ballCategory && secondBody.categoryBitMask == Variables.blockCategory {
             
@@ -83,9 +92,8 @@ extension GameScene {
             Variables.blockNum -= 1
             
             if Variables.blockNum == 0 {
-                //게임 클리어
-                print("게임 클리어")
                 //다음 스테이지 이동
+                nextStage()
             }
         }
         if firstBody.categoryBitMask == Variables.ballCategory && secondBody.categoryBitMask == Variables.paddleCategory {
@@ -94,6 +102,85 @@ extension GameScene {
         }
     }
     
+    //다음 스테이지 이동
+    func nextStage() {
+        let view = Variables.scene.view!
+        //공 제거
+        Variables.ball.removeFromParent()
+        let clearText = SKLabelNode()
+        clearText.fontName = "Courier-bold"
+        clearText.fontSize = 50
+        clearText.text = "STAGE CLEAR!!"
+        clearText.position = CGPoint(x: 0, y: 0)
+        clearText.color = .white
+        clearText.zPosition = 3
+        clearText.alpha = 0
+        Variables.scene.addChild(clearText)
+        
+        let action = SKAction.fadeOut(withDuration: 0.5)
+        let action1 = SKAction.wait(forDuration: 1)
+        let action2 = SKAction.scale(by: 1.5, duration: 0.5)
+        let action3 = SKAction.fadeOut(withDuration: 0.5)
+        let sequence = SKAction.sequence([action, action1, action2, action3])
+        clearText.run(sequence) {
+            Variables.stageNum += 1
+            Variables.isPlayed = false
+            Variables.scene.removeAllChildren()
+            
+            let scene = GameScene(size: view.frame.size)
+            scene.scaleMode = .aspectFill
+            scene.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            let transition = SKTransition.moveIn(with: .right, duration: 0.5)
+            view.presentScene(scene, transition: transition)
+        }
+    }
+    
+    //공이 바닥에 닿았을 때
+    func gameOver() {
+        let view = Variables.scene.view!
+        let bg = SKSpriteNode()
+        bg.color = .black
+        bg.alpha = 0.8
+        bg.zPosition = 10
+        bg.name = "gameoverBG"
+        bg.position = CGPoint(x: 0, y: 0)
+        bg.size = view.frame.size
+        Variables.scene.addChild(bg)
+        
+        let gameOverText = SKLabelNode()
+        gameOverText.fontName = "Courier-Bold"
+        gameOverText.fontSize = 100
+        gameOverText.text = "GAME OVER"
+        gameOverText.position = CGPoint(x: 0, y: 0)
+        gameOverText.color = .white
+        gameOverText.zPosition = 11
+        gameOverText.alpha = 0
+        
+        bg.addChild(gameOverText)
+        
+        let btn = SKSpriteNode()
+        btn.size = CGSize(width: 150, height: 50)
+        btn.texture = SKTexture(imageNamed: "restart_btn")
+        btn.position = CGPoint(x: 0, y: -80)
+        btn.zPosition = 11
+        btn.name = "restart"
+        bg.addChild(btn)
+        
+        let action = SKAction.fadeIn(withDuration: 0.1)
+        gameOverText.run(action) {
+            view.isPaused = true
+        }
+    }
+    
+    func restart() {
+        if let bg = Variables.scene.childNode(withName: "gameoverBG") {
+            bg.removeFromParent()
+            Variables.isPlayed = false
+            Variables.scene.view?.isPaused = false
+            Variables.ball.position = CGPoint(x: Variables.paddle.position.x, y: Variables.paddle.position.y + 30)
+            Variables.ball.physicsBody?.isDynamic = false
+        }
+    }
     //블럭 제거 효과
     func emitter(blockName: String, point: CGPoint) {
         let emit = SKEmitterNode(fileNamed: "Explosion.sks")
@@ -104,6 +191,20 @@ extension GameScene {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             emit?.removeFromParent()
             emit?.removeAllActions()
+        }
+    }
+    
+    //BGM
+    func bgm() {
+        if let url = Bundle.main.path(forResource: "bgm", ofType: "mp3") {
+            do {
+                bgSound = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: url))
+            } catch {
+                print("error to load bgm.mp3")
+            }
+            bgSound.volume = 0.5
+            bgSound.numberOfLoops = -1
+            bgSound.play()
         }
     }
     

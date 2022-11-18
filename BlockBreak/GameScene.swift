@@ -8,10 +8,12 @@
 import SpriteKit
 import GameplayKit
 import CoreMotion
+import AVKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let motion = CMMotionManager()
+    var bgSound: AVAudioPlayer!
     
     override func didMove(to view: SKView) {
         Variables.scene = self

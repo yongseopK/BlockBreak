@@ -20,6 +20,8 @@ class Stages {
         border()
         blocks()
         bottomImage()
+        setTitle()
+        bgEmitter()
     }
     
     func bg() {
@@ -58,7 +60,7 @@ class Stages {
         Variables.ball.name = "ball"
         Variables.scene.addChild(Variables.ball)
         Variables.ball.physicsBody = SKPhysicsBody(circleOfRadius: 10)
-        Variables.ball.physicsBody?.isDynamic = false
+        Variables.ball.physicsBody?.isDynamic = true
         Variables.ball.physicsBody?.affectedByGravity = false
         Variables.ball.physicsBody?.friction = 0
         Variables.ball.physicsBody?.restitution = 1
@@ -116,5 +118,32 @@ class Stages {
                 block.physicsBody?.contactTestBitMask = Variables.ballCategory
             }
         }
+    }
+    //현재 스테이지 알려주기
+    func setTitle() {
+        let stageTitle = SKLabelNode()
+        stageTitle.fontName = "Courier-Bold"
+        stageTitle.fontSize = 50
+        stageTitle.text = "stage \(Variables.stageNum)"
+        stageTitle.position = CGPoint(x: 0, y: -80)
+        stageTitle.color = .white
+        stageTitle.zPosition = 2
+        stageTitle.alpha = 0
+        Variables.scene.addChild(stageTitle)
+        let action = SKAction.fadeIn(withDuration: 0.5)
+        let action1 = SKAction.wait(forDuration: 1)
+        let action2 = SKAction.scale(by: 1.1, duration: 0.5)
+        let action3 = SKAction.fadeOut(withDuration: 0.5)
+        let sequence = SKAction.sequence([action, action1, action2, action3])
+        stageTitle.run(sequence)
+    }
+    
+    
+    //배경 애니메이션 효과
+    func bgEmitter() {
+        let emit = SKEmitterNode(fileNamed: "BGemitter.sks")
+        emit?.position = CGPoint(x: 0, y: 0)
+        emit?.zPosition = 0
+        Variables.scene.addChild(emit!)
     }
 }
