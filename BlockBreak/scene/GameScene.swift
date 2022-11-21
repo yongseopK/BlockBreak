@@ -14,6 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let motion = CMMotionManager()
     var bgSound: AVAudioPlayer!
+    var stage: Stages?
     
     override func didMove(to view: SKView) {
         Variables.scene = self

@@ -12,13 +12,13 @@ class Stages {
     
     let view = Variables.scene.view!
     
-    init() {
-        Variables.scene.physicsWorld.speed = 0.5
-        bg()
+    required init() {
+        
+        Variables.scene.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        
         paddleImage()
         ballImage()
         border()
-        blocks()
         bottomImage()
         setTitle()
         bgEmitter()

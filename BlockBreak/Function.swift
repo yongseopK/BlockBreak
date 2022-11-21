@@ -12,7 +12,12 @@ import AVKit
 extension GameScene {
     
     func setting() {
-        let stage = Stages()
+        
+        let stageName = "Stage\(Variables.stageNum)"
+        stage = (NSClassFromString("BlockBreak.\(stageName)") as! Stages.Type ).init()
+        stage?.bg()
+        stage?.blocks()
+        
 //        tiliting()
         bgm()
     }
@@ -108,7 +113,7 @@ extension GameScene {
         //공 제거
         Variables.ball.removeFromParent()
         let clearText = SKLabelNode()
-        clearText.fontName = "Courier-bold"
+        clearText.fontName = "Courier-Bold"
         clearText.fontSize = 50
         clearText.text = "STAGE CLEAR!!"
         clearText.position = CGPoint(x: 0, y: 0)
@@ -117,7 +122,7 @@ extension GameScene {
         clearText.alpha = 0
         Variables.scene.addChild(clearText)
         
-        let action = SKAction.fadeOut(withDuration: 0.5)
+        let action = SKAction.fadeIn(withDuration: 0.5)
         let action1 = SKAction.wait(forDuration: 1)
         let action2 = SKAction.scale(by: 1.5, duration: 0.5)
         let action3 = SKAction.fadeOut(withDuration: 0.5)
@@ -126,6 +131,11 @@ extension GameScene {
             Variables.stageNum += 1
             Variables.isPlayed = false
             Variables.scene.removeAllChildren()
+            
+            //모든 스테이지 클리어 시 처음하면으로
+            if Variables.stageNum == 6 {
+                Variables.stageNum = 1
+            }
             
             let scene = GameScene(size: view.frame.size)
             scene.scaleMode = .aspectFill
@@ -208,6 +218,32 @@ extension GameScene {
         }
     }
     
+    func shadowAnim(point: CGPoint) {
+        let anim = SKShapeNode(circleOfRadius: 3)
+        anim.strokeColor = .cyan
+        anim.fillColor = .green
+        anim.blendMode = .screen
+        anim.glowWidth = 10
+        anim.name = "animNode"
+        anim.position = point
+        Variables.scene.addChild(anim)
+        
+        let action = SKAction.wait(forDuration: 0.1)
+        let action1 = SKAction.fadeOut(withDuration: 0.3)
+        let action2 = SKAction.removeFromParent()
+        let sequence = SKAction.sequence([action, action1, action2])
+        
+        anim.run(sequence) {
+            anim.removeAllActions()
+            anim.removeFromParent()
+        }
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        let ballPosition = Variables.ball.position
+        shadowAnim(point: ballPosition)
+    }
+    
     //기기 기울기로 패들 움직이기
     func tiliting() {
         motion.accelerometerUpdateInterval = 0.1
@@ -217,4 +253,4 @@ extension GameScene {
             Variables.paddle.run(SKAction.moveTo(x: CGFloat(value), duration: 0.2))
         }
     }
-}//
+}
